@@ -35,13 +35,7 @@ export default defineConfig({
 
     // File patterns
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    exclude: [
-      'node_modules/',
-      'dist/',
-      '.git/',
-      '.cache/',
-      'coverage/',
-    ],
+    exclude: ['node_modules/', 'dist/', '.git/', '.cache/', 'coverage/'],
 
     // Test timeout
     testTimeout: 10000,

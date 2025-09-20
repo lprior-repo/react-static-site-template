@@ -6,9 +6,15 @@ const Home = () => {
     <>
       <Helmet>
         <title>Home - React Static Site Template</title>
-        <meta name="description" content="A production-ready React static site template with AWS deployment capabilities." />
+        <meta
+          name="description"
+          content="A production-ready React static site template with AWS deployment capabilities."
+        />
         <meta property="og:title" content="React Static Site Template" />
-        <meta property="og:description" content="A production-ready React static site template with AWS deployment capabilities." />
+        <meta
+          property="og:description"
+          content="A production-ready React static site template with AWS deployment capabilities."
+        />
         <meta property="og:type" content="website" />
       </Helmet>
 
@@ -25,8 +31,8 @@ const Home = () => {
                 React Static Site Template
               </h1>
               <p className="mt-6 text-lg leading-8 text-gray-600">
-                A production-ready React static site template with TypeScript, Tailwind CSS,
-                testing setup, and complete AWS deployment infrastructure.
+                A production-ready React static site template with TypeScript, Tailwind CSS, testing
+                setup, and complete AWS deployment infrastructure.
               </p>
               <div className="mt-10 flex items-center justify-center gap-x-6">
                 <Link
@@ -35,10 +41,7 @@ const Home = () => {
                 >
                   Learn More
                 </Link>
-                <Link
-                  to="/contact"
-                  className="text-sm font-semibold leading-6 text-gray-900"
-                >
+                <Link to="/contact" className="text-sm font-semibold leading-6 text-gray-900">
                   Get in Touch <span aria-hidden="true">→</span>
                 </Link>
               </div>
@@ -54,7 +57,9 @@ const Home = () => {
         <div className="py-24 sm:py-32">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-2xl lg:text-center">
-              <h2 className="text-base font-semibold leading-7 text-blue-600">Everything Included</h2>
+              <h2 className="text-base font-semibold leading-7 text-blue-600">
+                Everything Included
+              </h2>
               <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
                 Production-Ready Features
               </p>
@@ -68,56 +73,100 @@ const Home = () => {
                 <div className="relative pl-16">
                   <dt className="text-base font-semibold leading-7 text-gray-900">
                     <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
-                      <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 14.5M9.75 3.104L19.8 8.904M5 14.5v.791c0 .864.933 1.539 1.777 1.284L19.8 14.5M5 14.5L19.8 8.904" />
+                      <svg
+                        className="h-6 w-6 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 14.5M9.75 3.104L19.8 8.904M5 14.5v.791c0 .864.933 1.539 1.777 1.284L19.8 14.5M5 14.5L19.8 8.904"
+                        />
                       </svg>
                     </div>
                     Modern React & TypeScript
                   </dt>
                   <dd className="mt-2 text-base leading-7 text-gray-600">
-                    Built with React 18, TypeScript, and modern development practices for type safety and developer experience.
+                    Built with React 18, TypeScript, and modern development practices for type
+                    safety and developer experience.
                   </dd>
                 </div>
 
                 <div className="relative pl-16">
                   <dt className="text-base font-semibold leading-7 text-gray-900">
                     <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
-                      <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                      <svg
+                        className="h-6 w-6 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"
+                        />
                       </svg>
                     </div>
                     Vite & Lightning Fast
                   </dt>
                   <dd className="mt-2 text-base leading-7 text-gray-600">
-                    Powered by Vite for instant hot module replacement and optimized production builds.
+                    Powered by Vite for instant hot module replacement and optimized production
+                    builds.
                   </dd>
                 </div>
 
                 <div className="relative pl-16">
                   <dt className="text-base font-semibold leading-7 text-gray-900">
                     <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
-                      <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.623 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                      <svg
+                        className="h-6 w-6 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.623 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+                        />
                       </svg>
                     </div>
                     Testing & Quality
                   </dt>
                   <dd className="mt-2 text-base leading-7 text-gray-600">
-                    Comprehensive testing setup with Vitest, coverage reports, and automated quality checks.
+                    Comprehensive testing setup with Vitest, coverage reports, and automated quality
+                    checks.
                   </dd>
                 </div>
 
                 <div className="relative pl-16">
                   <dt className="text-base font-semibold leading-7 text-gray-900">
                     <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
-                      <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z" />
+                      <svg
+                        className="h-6 w-6 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z"
+                        />
                       </svg>
                     </div>
                     AWS Deployment Ready
                   </dt>
                   <dd className="mt-2 text-base leading-7 text-gray-600">
-                    Complete Terraform infrastructure for S3, CloudFront, and Route53 with CI/CD pipelines.
+                    Complete Terraform infrastructure for S3, CloudFront, and Route53 with CI/CD
+                    pipelines.
                   </dd>
                 </div>
               </dl>

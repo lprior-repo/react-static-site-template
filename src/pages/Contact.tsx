@@ -5,20 +5,20 @@ const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    message: ''
+    message: '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Here you would typically send the form data to your backend
-    console.log('Form submitted:', formData);
+    console.warn('Form submitted:', formData);
     alert('Thank you for your message! This is a demo form.');
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -26,16 +26,24 @@ const Contact = () => {
     <>
       <Helmet>
         <title>Contact - React Static Site Template</title>
-        <meta name="description" content="Get in touch with us about the React Static Site Template." />
+        <meta
+          name="description"
+          content="Get in touch with us about the React Static Site Template."
+        />
         <meta property="og:title" content="Contact - React Static Site Template" />
-        <meta property="og:description" content="Get in touch with us about the React Static Site Template." />
+        <meta
+          property="og:description"
+          content="Get in touch with us about the React Static Site Template."
+        />
       </Helmet>
 
       <div className="bg-white px-6 py-24 sm:py-32 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Contact Us</h2>
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            Contact Us
+          </h2>
           <p className="mt-2 text-lg leading-8 text-gray-600">
-            Have questions about the template? We'd love to hear from you.
+            Have questions about the template? We&apos;d love to hear from you.
           </p>
         </div>
 
@@ -59,7 +67,10 @@ const Contact = () => {
             </div>
 
             <div className="sm:col-span-2">
-              <label htmlFor="email" className="block text-sm font-semibold leading-6 text-gray-900">
+              <label
+                htmlFor="email"
+                className="block text-sm font-semibold leading-6 text-gray-900"
+              >
                 Email
               </label>
               <div className="mt-2.5">
@@ -76,7 +87,10 @@ const Contact = () => {
             </div>
 
             <div className="sm:col-span-2">
-              <label htmlFor="message" className="block text-sm font-semibold leading-6 text-gray-900">
+              <label
+                htmlFor="message"
+                className="block text-sm font-semibold leading-6 text-gray-900"
+              >
                 Message
               </label>
               <div className="mt-2.5">

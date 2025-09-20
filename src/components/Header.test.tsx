@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import Header from './Header';
 
-const renderHeader = (initialEntries = ['/']) => {
+const renderHeader = (_initialEntries = ['/']) => {
   return render(
     <BrowserRouter>
       <Header />

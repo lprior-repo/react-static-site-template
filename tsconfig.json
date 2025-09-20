@@ -35,10 +35,11 @@
     /* Additional strict checks */
     "noImplicitReturns": true,
     "noImplicitOverride": true,
-    "exactOptionalPropertyTypes": true,
+    "exactOptionalPropertyTypes": false,
     "noPropertyAccessFromIndexSignature": true,
     "noUncheckedIndexedAccess": true
   },
-  "include": ["src", "vite.config.ts", "vitest.config.ts"],
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "tests"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

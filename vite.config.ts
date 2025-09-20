@@ -4,8 +4,8 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { visualizer } from 'rollup-plugin-visualizer';
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command, mode }) => {
-  const env = loadEnv(mode, process.cwd(), '');
+export default defineConfig(({ command: _command, mode }) => {
+  const _env = loadEnv(mode, process.cwd(), '');
 
   return {
     plugins: [
@@ -24,14 +24,14 @@ export default defineConfig(({ command, mode }) => {
                 cacheName: 'google-fonts-cache',
                 expiration: {
                   maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+                  maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
                 },
                 cacheableResponse: {
-                  statuses: [0, 200]
-                }
-              }
-            }
-          ]
+                  statuses: [0, 200],
+                },
+              },
+            },
+          ],
         },
         includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'robots.txt'],
         manifest: {
@@ -45,24 +45,25 @@ export default defineConfig(({ command, mode }) => {
             {
               src: '/icon-192.png',
               sizes: '192x192',
-              type: 'image/png'
+              type: 'image/png',
             },
             {
               src: '/icon-512.png',
               sizes: '512x512',
-              type: 'image/png'
-            }
-          ]
-        }
+              type: 'image/png',
+            },
+          ],
+        },
       }),
 
       // Bundle analyzer (only in analyze mode)
-      mode === 'analyze' && visualizer({
-        filename: 'dist/stats.html',
-        open: true,
-        gzipSize: true,
-        brotliSize: true,
-      }),
+      mode === 'analyze' &&
+        visualizer({
+          filename: 'dist/stats.html',
+          open: true,
+          gzipSize: true,
+          brotliSize: true,
+        }),
     ].filter(Boolean),
 
     // Development server configuration
@@ -141,12 +142,7 @@ export default defineConfig(({ command, mode }) => {
 
     // Dependency optimization
     optimizeDeps: {
-      include: [
-        'react',
-        'react-dom',
-        'react-router-dom',
-        'react-helmet-async',
-      ],
+      include: ['react', 'react-dom', 'react-router-dom', 'react-helmet-async'],
     },
 
     // Asset processing

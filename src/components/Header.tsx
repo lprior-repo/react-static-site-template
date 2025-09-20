@@ -21,9 +21,7 @@ const Header = () => {
             <Link
               to="/"
               className={`text-base font-medium ${
-                isActive('/')
-                  ? 'text-blue-600'
-                  : 'text-gray-500 hover:text-gray-900'
+                isActive('/') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'
               }`}
             >
               Home
@@ -31,9 +29,7 @@ const Header = () => {
             <Link
               to="/about"
               className={`text-base font-medium ${
-                isActive('/about')
-                  ? 'text-blue-600'
-                  : 'text-gray-500 hover:text-gray-900'
+                isActive('/about') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'
               }`}
             >
               About
@@ -41,9 +37,7 @@ const Header = () => {
             <Link
               to="/contact"
               className={`text-base font-medium ${
-                isActive('/contact')
-                  ? 'text-blue-600'
-                  : 'text-gray-500 hover:text-gray-900'
+                isActive('/contact') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'
               }`}
             >
               Contact
@@ -59,7 +53,12 @@ const Header = () => {
             >
               <span className="sr-only">Open menu</span>
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             </button>
           </div>
