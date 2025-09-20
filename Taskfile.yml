@@ -1,0 +1,372 @@
+version: '3'
+
+# Static Site Acceleration Platform - React Template
+# Velocity First: Ship with Confidence & Discipline
+
+vars:
+  PROJECT_NAME: react-static-site-template
+  AWS_REGION: us-east-1
+  ENVIRONMENT: dev
+
+env:
+  AWS_REGION: us-east-1
+  NODE_ENV: development
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list-all
+
+  # 🚀 Velocity First: Build & Package
+  install:
+    desc: Install dependencies
+    cmds:
+      - npm ci
+    sources:
+      - package.json
+      - package-lock.json
+    generates:
+      - node_modules/**
+
+  build:
+    desc: Build React application for production
+    deps: [install]
+    cmds:
+      - npm run build
+    sources:
+      - src/**/*.{ts,tsx,js,jsx}
+      - public/**/*
+      - vite.config.ts
+      - tsconfig.json
+      - tailwind.config.js
+    generates:
+      - dist/**/*
+
+  build:analyze:
+    desc: Build with bundle analysis
+    deps: [install]
+    cmds:
+      - npm run build:analyze
+
+  build:preview:
+    desc: Build for preview environment
+    deps: [install]
+    cmds:
+      - npm run build:preview
+
+  preview:
+    desc: Preview production build locally
+    deps: [build]
+    cmds:
+      - npm run preview
+
+  dev:
+    desc: Start development server
+    deps: [install]
+    cmds:
+      - npm run dev
+
+  # 🧪 Test-First: Build with Quality
+  test:
+    desc: Run all tests
+    deps: [install]
+    cmds:
+      - npm test
+
+  test:run:
+    desc: Run tests once
+    deps: [install]
+    cmds:
+      - npm run test:run
+
+  test:coverage:
+    desc: Generate test coverage report
+    deps: [install]
+    cmds:
+      - npm run test:coverage
+
+  test:watch:
+    desc: Run tests in watch mode for TDD
+    deps: [install]
+    cmds:
+      - npm run test:watch
+
+  test:ui:
+    desc: Open Vitest UI
+    deps: [install]
+    cmds:
+      - npm run test:ui
+
+  # 🛡️ Well-Architected: Ship with Excellence
+  lint:
+    desc: Run ESLint for code quality
+    deps: [install]
+    cmds:
+      - npm run lint
+
+  lint:fix:
+    desc: Fix ESLint issues automatically
+    deps: [install]
+    cmds:
+      - npm run lint:fix
+
+  format:
+    desc: Format code with Prettier
+    deps: [install]
+    cmds:
+      - npm run format
+
+  format:check:
+    desc: Check code formatting
+    deps: [install]
+    cmds:
+      - npm run format:check
+
+  type-check:
+    desc: Run TypeScript type checking
+    deps: [install]
+    cmds:
+      - npm run type-check
+
+  security:
+    desc: Run security audit
+    deps: [install]
+    cmds:
+      - npm audit
+      - npm run security:check
+
+  validate:
+    desc: Run all validation checks
+    deps: [install]
+    cmds:
+      - task: lint
+      - task: type-check
+      - task: test:run
+      - task: tf:validate
+      - task: tf:security
+      - task: security
+
+  # 🏗️ Infrastructure as Code
+  tf:init:
+    desc: Initialize Terraform
+    dir: terraform
+    cmds:
+      - terraform init
+
+  tf:plan:
+    desc: Plan Terraform changes
+    dir: terraform
+    deps: [tf:init]
+    cmds:
+      - terraform plan -var="environment={{.ENVIRONMENT}}"
+
+  tf:apply:
+    desc: Apply Terraform changes
+    dir: terraform
+    deps: [build]
+    cmds:
+      - terraform apply -var="environment={{.ENVIRONMENT}}" -auto-approve
+
+  tf:destroy:
+    desc: Destroy Terraform infrastructure
+    dir: terraform
+    cmds:
+      - terraform destroy -var="environment={{.ENVIRONMENT}}" -auto-approve
+
+  tf:validate:
+    desc: Validate Terraform configuration
+    dir: terraform
+    cmds:
+      - terraform validate
+      - terraform fmt -check
+
+  tf:format:
+    desc: Format Terraform files
+    dir: terraform
+    cmds:
+      - terraform fmt -recursive
+
+  tf:security:
+    desc: Run security checks on Terraform
+    dir: terraform
+    cmds:
+      - |
+        if command -v tfsec >/dev/null 2>&1; then
+          tfsec .
+        else
+          echo "⚠️  tfsec not installed. Run: brew install tfsec"
+        fi
+
+  # 📦 Deployment
+  deploy:assets:
+    desc: Deploy static assets to S3
+    deps: [build]
+    cmds:
+      - |
+        BUCKET_NAME=$(cd terraform && terraform output -raw s3_bucket_name)
+        echo "Deploying to bucket: $BUCKET_NAME"
+        aws s3 sync dist/ s3://$BUCKET_NAME --delete --cache-control "max-age=31536000" --exclude "*.html"
+        aws s3 sync dist/ s3://$BUCKET_NAME --delete --cache-control "max-age=0, no-cache" --include "*.html"
+
+  deploy:invalidate:
+    desc: Invalidate CloudFront cache
+    cmds:
+      - |
+        DISTRIBUTION_ID=$(cd terraform && terraform output -raw cloudfront_distribution_id)
+        echo "Invalidating CloudFront distribution: $DISTRIBUTION_ID"
+        aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
+
+  deploy:dev:
+    desc: Deploy to development environment
+    cmds:
+      - task: validate
+      - task: tf:apply
+        vars: {ENVIRONMENT: dev}
+      - task: deploy:assets
+      - task: deploy:invalidate
+
+  deploy:staging:
+    desc: Deploy to staging environment
+    cmds:
+      - task: validate
+      - task: tf:apply
+        vars: {ENVIRONMENT: staging}
+      - task: deploy:assets
+      - task: deploy:invalidate
+
+  deploy:prod:
+    desc: Deploy to production environment
+    cmds:
+      - task: validate
+      - task: tf:apply
+        vars: {ENVIRONMENT: prod}
+      - task: deploy:assets
+      - task: deploy:invalidate
+
+  # 📊 Monitoring & Performance
+  lighthouse:
+    desc: Run Lighthouse performance audit
+    deps: [build]
+    cmds:
+      - |
+        if command -v lighthouse >/dev/null 2>&1; then
+          SITE_URL=$(cd terraform && terraform output -raw website_url 2>/dev/null || echo "http://localhost:4173")
+          echo "Running Lighthouse audit on: $SITE_URL"
+          lighthouse $SITE_URL --output=html --output-path=./lighthouse-report.html
+          echo "📊 Lighthouse report generated: lighthouse-report.html"
+        else
+          echo "⚠️  Lighthouse not installed. Run: npm install -g lighthouse"
+        fi
+
+  perf:bundle:
+    desc: Analyze bundle size
+    deps: [build:analyze]
+    cmds:
+      - echo "📊 Bundle analysis completed. Check dist/stats.html"
+
+  # 🧹 Cleanup
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf dist/
+      - rm -rf node_modules/
+      - rm -rf coverage/
+      - rm -rf .vitest/
+
+  clean:tf:
+    desc: Clean Terraform state (DANGEROUS)
+    dir: terraform
+    cmds:
+      - rm -rf .terraform/
+      - rm -f .terraform.lock.hcl
+      - rm -f terraform.tfstate*
+
+  # 🔍 Development Tools
+  dev:setup:
+    desc: Setup development environment
+    cmds:
+      - task: install
+      - task: tf:init
+      - echo "✅ Development environment ready!"
+      - echo "💡 Run 'task dev' to start development server"
+      - echo "🧪 Run 'task test:watch' for TDD workflow"
+      - echo "🚀 Run 'task deploy:dev' to deploy"
+
+  dev:storybook:
+    desc: Start Storybook (if configured)
+    cmds:
+      - |
+        if [ -f ".storybook/main.ts" ]; then
+          npm run storybook
+        else
+          echo "⚠️  Storybook not configured. Add it with: npx storybook@latest init"
+        fi
+
+  # 📈 Analytics & Insights
+  insights:deps:
+    desc: Analyze dependencies
+    deps: [install]
+    cmds:
+      - |
+        if command -v npm-check-updates >/dev/null 2>&1; then
+          echo "📊 Checking for dependency updates..."
+          npm-check-updates
+        else
+          echo "⚠️  npm-check-updates not installed. Run: npm install -g npm-check-updates"
+        fi
+
+  insights:size:
+    desc: Analyze project size
+    cmds:
+      - |
+        echo "📊 Project Size Analysis"
+        echo "========================"
+        du -sh dist/ 2>/dev/null || echo "No dist/ directory found. Run 'task build' first."
+        du -sh node_modules/ 2>/dev/null || echo "No node_modules/ directory found."
+        du -sh src/
+        echo ""
+        echo "📁 File counts:"
+        find src -name "*.ts" -o -name "*.tsx" | wc -l | awk '{print "TypeScript files: " $1}'
+        find src -name "*.test.*" | wc -l | awk '{print "Test files: " $1}'
+
+  # 🔒 Security
+  security:deps:
+    desc: Check for vulnerable dependencies
+    cmds:
+      - npm audit --audit-level=moderate
+
+  security:scan:
+    desc: Run comprehensive security scan
+    cmds:
+      - task: security:deps
+      - |
+        if command -v semgrep >/dev/null 2>&1; then
+          echo "🔒 Running Semgrep security scan..."
+          semgrep --config=auto src/
+        else
+          echo "⚠️  Semgrep not installed. Run: pip install semgrep"
+        fi
+
+  # 📚 Documentation
+  docs:generate:
+    desc: Generate project documentation
+    cmds:
+      - |
+        echo "📚 Generating documentation..."
+        if command -v typedoc >/dev/null 2>&1; then
+          typedoc src/ --out docs/
+          echo "📖 TypeDoc documentation generated in docs/"
+        else
+          echo "⚠️  TypeDoc not installed. Run: npm install -g typedoc"
+        fi
+
+  docs:serve:
+    desc: Serve documentation locally
+    cmds:
+      - |
+        if [ -d "docs" ]; then
+          python3 -m http.server 8080 --directory docs
+        else
+          echo "❌ No docs directory found. Run 'task docs:generate' first."
+        fi

@@ -1,0 +1,382 @@
+name: 🚀 Continuous Integration & Deployment
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'terraform/**'
+      - 'package*.json'
+      - 'vite.config.ts'
+      - 'tsconfig*.json'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'terraform/**'
+      - 'package*.json'
+      - 'vite.config.ts'
+      - 'tsconfig*.json'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  TERRAFORM_VERSION: '1.9.8'
+
+jobs:
+  # 🔍 Code Quality & Security
+  quality-gate:
+    name: 🛡️ Quality Gate
+    runs-on: ubuntu-latest
+    outputs:
+      should-deploy: ${{ steps.quality-check.outputs.passed }}
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci --production=false
+
+      - name: 🔍 Lint Code
+        run: |
+          npm run lint
+          npm run format:check
+
+      - name: 🔒 Security Audit
+        run: |
+          npm audit --audit-level=moderate
+          npm run security:check
+
+      - name: 🏗️ Type Check
+        run: npm run type-check
+
+      - name: 🧪 Unit Tests
+        run: npm run test:coverage
+
+      - name: 📊 Upload Coverage
+        uses: codecov/codecov-action@v3
+        with:
+          directory: ./coverage
+          flags: react-unit
+          name: react-unit-tests
+
+      - name: ✅ Quality Check Passed
+        id: quality-check
+        run: echo "passed=true" >> $GITHUB_OUTPUT
+
+  # 🏗️ Build & Package
+  build:
+    name: 🏗️ Build & Package
+    runs-on: ubuntu-latest
+    needs: quality-gate
+    if: needs.quality-gate.outputs.should-deploy == 'true'
+    outputs:
+      build-version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci --production=false
+
+      - name: 🏗️ Build Application
+        run: npm run build
+
+      - name: 📋 Generate Version
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            VERSION="v$(date +%Y%m%d)-$(git rev-parse --short HEAD)"
+          else
+            VERSION="${{ github.ref_name }}-$(git rev-parse --short HEAD)"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Build version: $VERSION"
+
+      - name: 📦 Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: react-build-${{ steps.version.outputs.version }}
+          path: |
+            dist/
+          retention-days: 30
+
+      - name: 📊 Bundle Size Analysis
+        run: |
+          echo "## 📦 Bundle Size Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "| Asset Type | Size | Compressed |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|------|------------|" >> $GITHUB_STEP_SUMMARY
+
+          # Analyze JS bundles
+          find dist/assets -name "*.js" -type f | while read file; do
+            name=$(basename "$file")
+            size=$(stat -c%s "$file" | numfmt --to=iec)
+            gzipped=$(gzip -c "$file" | wc -c | numfmt --to=iec)
+            echo "| $name | $size | $gzipped |" >> $GITHUB_STEP_SUMMARY
+          done
+
+          # Analyze CSS bundles
+          find dist/assets -name "*.css" -type f | while read file; do
+            name=$(basename "$file")
+            size=$(stat -c%s "$file" | numfmt --to=iec)
+            gzipped=$(gzip -c "$file" | wc -c | numfmt --to=iec)
+            echo "| $name | $size | $gzipped |" >> $GITHUB_STEP_SUMMARY
+          done
+
+  # 🏗️ Infrastructure Validation
+  infrastructure:
+    name: 🏗️ Infrastructure Validation
+    runs-on: ubuntu-latest
+    needs: quality-gate
+    if: needs.quality-gate.outputs.should-deploy == 'true'
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: 🔧 Terraform Init
+        working-directory: terraform
+        run: terraform init -backend=false
+
+      - name: ✅ Terraform Validate
+        working-directory: terraform
+        run: terraform validate
+
+      - name: 🎨 Terraform Format Check
+        working-directory: terraform
+        run: terraform fmt -check -recursive
+
+      - name: 🔍 TFLint Security Scan
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
+
+      - name: 🔍 Run TFLint
+        working-directory: terraform
+        run: |
+          tflint --init
+          tflint --recursive --config=../.tflint.hcl
+
+      - name: 🛡️ Checkov Security Scan
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: terraform
+          framework: terraform
+          output_format: sarif
+          output_file_path: reports/checkov-results.sarif
+          quiet: true
+          soft_fail: false
+
+      - name: 📊 Upload Security Scan Results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: reports/checkov-results.sarif
+
+  # 🧪 E2E Tests
+  e2e-tests:
+    name: 🧪 E2E Tests
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: react-build-${{ needs.build.outputs.build-version }}
+          path: dist
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🧪 Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: 🧪 Run E2E Tests
+        run: |
+          npm run preview &
+          sleep 5
+          npx playwright test
+
+      - name: 📊 Upload E2E Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-test-results
+          path: |
+            test-results/
+            playwright-report/
+
+  # 📈 Performance & Accessibility
+  lighthouse:
+    name: 📈 Lighthouse Audit
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: react-build-${{ needs.build.outputs.build-version }}
+          path: dist
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🚀 Start Preview Server
+        run: |
+          npm run preview &
+          sleep 5
+
+      - name: 📈 Run Lighthouse
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            http://localhost:4173
+            http://localhost:4173/about
+            http://localhost:4173/contact
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+  # 🚀 Deployment Planning
+  deployment-plan:
+    name: 🚀 Deployment Plan
+    runs-on: ubuntu-latest
+    needs: [build, infrastructure]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+    outputs:
+      environment: ${{ steps.env.outputs.environment }}
+      should-deploy: ${{ steps.deploy-check.outputs.should-deploy }}
+    steps:
+      - name: 🎯 Determine Environment
+        id: env
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+          else
+            echo "environment=development" >> $GITHUB_OUTPUT
+          fi
+
+      - name: ✅ Deployment Check
+        id: deploy-check
+        run: echo "should-deploy=true" >> $GITHUB_OUTPUT
+
+  # 🚀 Deploy to AWS
+  deploy:
+    name: 🚀 Deploy to AWS
+    runs-on: ubuntu-latest
+    needs: [deployment-plan, build]
+    if: needs.deployment-plan.outputs.should-deploy == 'true'
+    environment:
+      name: ${{ needs.deployment-plan.outputs.environment }}
+      url: ${{ steps.deploy.outputs.website_url }}
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: 🔧 Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: 📦 Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: react-build-${{ needs.build.outputs.build-version }}
+          path: dist
+
+      - name: 🏗️ Deploy Infrastructure
+        id: terraform
+        working-directory: terraform
+        run: |
+          terraform init
+          terraform plan -var="environment=${{ needs.deployment-plan.outputs.environment }}"
+          terraform apply -var="environment=${{ needs.deployment-plan.outputs.environment }}" -auto-approve
+          echo "bucket_name=$(terraform output -raw s3_bucket_name)" >> $GITHUB_OUTPUT
+          echo "distribution_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
+          echo "website_url=$(terraform output -raw website_url)" >> $GITHUB_OUTPUT
+
+      - name: 📦 Deploy Assets to S3
+        run: |
+          # Deploy assets with long cache headers
+          aws s3 sync dist/ s3://${{ steps.terraform.outputs.bucket_name }} \
+            --delete \
+            --cache-control "max-age=31536000" \
+            --exclude "*.html" \
+            --exclude "*.xml" \
+            --exclude "*.txt"
+
+          # Deploy HTML files with no cache
+          aws s3 sync dist/ s3://${{ steps.terraform.outputs.bucket_name }} \
+            --delete \
+            --cache-control "max-age=0, no-cache, no-store, must-revalidate" \
+            --include "*.html" \
+            --include "*.xml" \
+            --include "*.txt"
+
+      - name: 🔄 Invalidate CloudFront Cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ steps.terraform.outputs.distribution_id }} \
+            --paths "/*"
+
+      - name: ✅ Deployment Summary
+        id: deploy
+        run: |
+          echo "website_url=${{ steps.terraform.outputs.website_url }}" >> $GITHUB_OUTPUT
+          echo "## 🚀 Deployment Successful" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Environment: ${{ needs.deployment-plan.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "🌐 Website URL: ${{ steps.terraform.outputs.website_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "📦 S3 Bucket: ${{ steps.terraform.outputs.bucket_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "🔄 CloudFront Distribution: ${{ steps.terraform.outputs.distribution_id }}" >> $GITHUB_STEP_SUMMARY
