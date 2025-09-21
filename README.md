@@ -1,10 +1,12 @@
 # React Static Site Template
 
-A production-ready React static site template with TypeScript, Tailwind CSS, comprehensive testing, and complete AWS deployment infrastructure.
+A production-ready React static site template with TypeScript, Tailwind CSS,
+comprehensive testing, and complete AWS deployment infrastructure.
 
 ## 🚀 Features
 
 ### Frontend Stack
+
 - **React 18** with TypeScript for type safety
 - **Vite** for lightning-fast development and optimized builds
 - **Tailwind CSS** for utility-first styling
@@ -12,6 +14,7 @@ A production-ready React static site template with TypeScript, Tailwind CSS, com
 - **React Helmet Async** for SEO meta tag management
 
 ### Testing & Quality
+
 - **Vitest** for unit testing with 80% coverage threshold
 - **Testing Library** for component testing
 - **ESLint** with React and TypeScript rules
@@ -19,6 +22,7 @@ A production-ready React static site template with TypeScript, Tailwind CSS, com
 - **Husky** for pre-commit hooks
 
 ### Development Experience
+
 - **Hot Module Replacement** for instant feedback
 - **TypeScript** strict mode for better code quality
 - **Path mapping** for clean imports
@@ -26,6 +30,7 @@ A production-ready React static site template with TypeScript, Tailwind CSS, com
 - **Bundle analysis** and optimization
 
 ### Infrastructure & Deployment
+
 - **AWS S3** for static hosting
 - **CloudFront** CDN for global distribution
 - **Route53** for DNS management (optional)
@@ -37,7 +42,7 @@ A production-ready React static site template with TypeScript, Tailwind CSS, com
 
 - Node.js 18+ and npm
 - AWS CLI configured (for deployment)
-- Terraform 1.6+ (for infrastructure)
+- Terraform 1.13+ (for infrastructure)
 - Git
 
 ## 🛠️ Quick Start
@@ -376,6 +381,7 @@ npm run build:analyze
 ### IDE Setup
 
 **VS Code Extensions** (recommended):
+
 - Tailwind CSS IntelliSense
 - Prettier - Code formatter
 - ESLint
@@ -442,7 +448,8 @@ task docs:serve
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
+for details.
 
 ## 🙏 Acknowledgments
 

@@ -35,11 +35,11 @@
     /* Additional strict checks */
     "noImplicitReturns": true,
     "noImplicitOverride": true,
-    "exactOptionalPropertyTypes": false,
+    "exactOptionalPropertyTypes": true,
     "noPropertyAccessFromIndexSignature": true,
     "noUncheckedIndexedAccess": true
   },
-  "include": ["src"],
-  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "tests"],
+  "include": ["src", "tests"],
+  "types": ["vitest/globals", "@testing-library/jest-dom", "node"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

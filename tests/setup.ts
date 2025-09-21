@@ -12,6 +12,10 @@ afterEach(() => {
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
+  root = null;
+  rootMargin = '';
+  thresholds = [];
+
   constructor() {}
   observe() {
     return null;
@@ -22,7 +26,10 @@ global.IntersectionObserver = class IntersectionObserver {
   unobserve() {
     return null;
   }
-};
+  takeRecords() {
+    return [];
+  }
+} as any;
 
 // Mock ResizeObserver
 global.ResizeObserver = class ResizeObserver {

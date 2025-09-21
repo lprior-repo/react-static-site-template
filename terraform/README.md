@@ -1,6 +1,8 @@
 # React Static Site Terraform Infrastructure
 
-This Terraform configuration creates a production-ready infrastructure for hosting a React static site on AWS using S3, CloudFront, and optionally Route53 for custom domains.
+This Terraform configuration creates a production-ready infrastructure for
+hosting a React static site on AWS using S3, CloudFront, and optionally Route53
+for custom domains.
 
 ## Architecture
 
@@ -23,18 +25,21 @@ This Terraform configuration creates a production-ready infrastructure for hosti
 
 ## Prerequisites
 
-1. **Terraform**: Version >= 1.0
+1. **Terraform**: Version >= 1.13
 2. **AWS CLI**: Configured with appropriate credentials
-3. **Domain**: If using custom domain, ensure you own it and have Route53 hosted zone
+3. **Domain**: If using custom domain, ensure you own it and have Route53 hosted
+   zone
 
 ## Quick Start
 
 1. **Copy variables file**:
+
    ```bash
    cp terraform.tfvars.example terraform.tfvars
    ```
 
 2. **Configure variables** in `terraform.tfvars`:
+
    ```hcl
    project_name = "my-react-app"
    environment  = "prod"
@@ -55,22 +60,22 @@ This Terraform configuration creates a production-ready infrastructure for hosti
 
 ### Required Variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
+| Variable       | Description                            | Example          |
+| -------------- | -------------------------------------- | ---------------- |
 | `project_name` | Project name (lowercase, hyphens only) | `"my-react-app"` |
-| `environment` | Environment (dev/staging/prod) | `"prod"` |
-| `aws_region` | AWS region | `"us-east-1"` |
+| `environment`  | Environment (dev/staging/prod)         | `"prod"`         |
+| `aws_region`   | AWS region                             | `"us-east-1"`    |
 
 ### Optional Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `domain_name` | Custom domain name | `""` (uses CloudFront domain) |
-| `enable_logging` | Enable CloudFront access logs | `true` |
-| `price_class` | CloudFront price class | `"PriceClass_100"` |
-| `enable_versioning` | Enable S3 versioning | `true` |
-| `enable_health_check` | Enable Route53 health check | `false` |
-| `cors_allowed_origins` | CORS allowed origins | `["*"]` |
+| Variable               | Description                   | Default                       |
+| ---------------------- | ----------------------------- | ----------------------------- |
+| `domain_name`          | Custom domain name            | `""` (uses CloudFront domain) |
+| `enable_logging`       | Enable CloudFront access logs | `true`                        |
+| `price_class`          | CloudFront price class        | `"PriceClass_100"`            |
+| `enable_versioning`    | Enable S3 versioning          | `true`                        |
+| `enable_health_check`  | Enable Route53 health check   | `false`                       |
+| `cors_allowed_origins` | CORS allowed origins          | `["*"]`                       |
 
 ### Price Classes
 
@@ -82,7 +87,8 @@ This Terraform configuration creates a production-ready infrastructure for hosti
 
 1. **Ensure Route53 hosted zone exists** for your domain
 2. **Set domain_name** in `terraform.tfvars`
-3. **Apply configuration** - ACM certificate will be created and validated automatically
+3. **Apply configuration** - ACM certificate will be created and validated
+   automatically
 4. **Update name servers** if needed (check outputs for name servers)
 
 ## Deployment Workflow
@@ -135,29 +141,32 @@ aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/
 
 After successful deployment, Terraform provides these outputs:
 
-| Output | Description |
-|--------|-------------|
-| `website_url` | Main website URL (custom domain or CloudFront) |
-| `cloudfront_url` | CloudFront distribution URL |
-| `s3_bucket_id` | S3 bucket name for file uploads |
+| Output                       | Description                                       |
+| ---------------------------- | ------------------------------------------------- |
+| `website_url`                | Main website URL (custom domain or CloudFront)    |
+| `cloudfront_url`             | CloudFront distribution URL                       |
+| `s3_bucket_id`               | S3 bucket name for file uploads                   |
 | `cloudfront_distribution_id` | CloudFront distribution ID for cache invalidation |
-| `deployment_info` | Combined deployment information for CI/CD |
+| `deployment_info`            | Combined deployment information for CI/CD         |
 
 ## Security Features
 
 ### S3 Security
+
 - All public access blocked
 - Bucket policy restricts access to CloudFront only
 - Server-side encryption enabled
 - Versioning enabled with lifecycle policies
 
 ### CloudFront Security
+
 - HTTPS-only (HTTP redirects to HTTPS)
 - Security headers via managed response headers policy
 - Origin Access Control (OAC) instead of deprecated OAI
 - Custom error responses prevent direct S3 access
 
 ### Network Security
+
 - IPv6 support
 - Geo-restrictions support (currently disabled)
 - WAF integration ready (commented out)
@@ -165,11 +174,13 @@ After successful deployment, Terraform provides these outputs:
 ## Monitoring and Logging
 
 ### CloudFront Logs
+
 - Access logs stored in separate S3 bucket
 - 90-day retention policy
 - Disabled by default (set `enable_logging = true`)
 
 ### Health Checks
+
 - Route53 health check for custom domains
 - CloudWatch integration
 - Disabled by default (set `enable_health_check = true`)
@@ -177,12 +188,14 @@ After successful deployment, Terraform provides these outputs:
 ## Cost Optimization
 
 ### S3 Lifecycle Policies
+
 - Transition to IA after 30 days
 - Transition to Glacier after 90 days
 - Delete non-current versions after 365 days
 - Delete incomplete multipart uploads after 7 days
 
 ### CloudFront
+
 - Compression enabled
 - Optimized cache policies
 - Regional edge caches utilized
@@ -253,4 +266,5 @@ terraform/
 
 ## License
 
-This Terraform configuration is provided as-is for educational and production use.
+This Terraform configuration is provided as-is for educational and production
+use.

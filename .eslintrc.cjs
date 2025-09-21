@@ -8,19 +8,12 @@ module.exports = {
     'plugin:react-hooks/recommended',
     'plugin:react/jsx-runtime',
   ],
-  ignorePatterns: ['dist', '.eslintrc.cjs', 'coverage', 'node_modules'],
-  overrides: [
-    {
-      files: ['tests/setup.ts'],
-      rules: {
-        '@typescript-eslint/no-empty-function': 'off',
-      },
-    },
-  ],
+  ignorePatterns: ['dist', '.eslintrc.cjs', 'coverage', 'node_modules', 'vite.config.ts', 'vitest.config.ts'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
+    project: './tsconfig.json',
     ecmaFeatures: {
       jsx: true,
     },
@@ -72,6 +65,10 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-non-null-assertion': 'warn',
+    
+    // Functional Programming rules - enforce immutability
+    '@typescript-eslint/prefer-readonly': 'error',
+    '@typescript-eslint/prefer-readonly-parameter-types': 'off', // Too strict for React components
 
     // General ESLint rules
     'no-console': ['warn', { allow: ['warn', 'error'] }],
@@ -81,6 +78,13 @@ module.exports = {
     'no-var': 'error',
     'prefer-const': 'error',
     'prefer-template': 'error',
+    
+    // Functional programming enforcement
+    'no-param-reassign': ['error', { props: true }],
+    'no-void': 'error',
+    'no-delete-var': 'error',
+    'no-implicit-globals': 'error',
+    'prefer-arrow-callback': 'error',
     'sort-imports': [
       'error',
       {

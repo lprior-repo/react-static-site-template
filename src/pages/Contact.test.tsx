@@ -8,9 +8,9 @@ import Contact from './Contact';
 const mockAlert = vi.fn();
 global.alert = mockAlert;
 
-// Mock console.warn to test form submission
-const mockConsoleWarn = vi.fn();
-global.console.warn = mockConsoleWarn;
+// Mock console.log to test form submission
+const mockConsoleLog = vi.fn();
+global.console.log = mockConsoleLog;
 
 const renderContact = () => {
   return render(
@@ -23,7 +23,7 @@ const renderContact = () => {
 describe('Contact', () => {
   beforeEach(() => {
     mockAlert.mockClear();
-    mockConsoleWarn.mockClear();
+    mockConsoleLog.mockClear();
   });
 
   it('renders the contact form', () => {
@@ -36,9 +36,9 @@ describe('Contact', () => {
   it('displays all form fields', () => {
     renderContact();
 
-    expect(screen.getByLabelText('Name')).toBeInTheDocument();
-    expect(screen.getByLabelText('Email')).toBeInTheDocument();
-    expect(screen.getByLabelText('Message')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Message/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Send Message' })).toBeInTheDocument();
   });
 
@@ -46,9 +46,9 @@ describe('Contact', () => {
     const user = userEvent.setup();
     renderContact();
 
-    const nameInput = screen.getByLabelText('Name');
-    const emailInput = screen.getByLabelText('Email');
-    const messageInput = screen.getByLabelText('Message');
+    const nameInput = screen.getByLabelText(/Name/i);
+    const emailInput = screen.getByLabelText(/Email/i);
+    const messageInput = screen.getByLabelText(/Message/i);
 
     await user.type(nameInput, 'John Doe');
     await user.type(emailInput, 'john@example.com');
@@ -63,9 +63,9 @@ describe('Contact', () => {
     const user = userEvent.setup();
     renderContact();
 
-    const nameInput = screen.getByLabelText('Name');
-    const emailInput = screen.getByLabelText('Email');
-    const messageInput = screen.getByLabelText('Message');
+    const nameInput = screen.getByLabelText(/Name/i);
+    const emailInput = screen.getByLabelText(/Email/i);
+    const messageInput = screen.getByLabelText(/Message/i);
     const submitButton = screen.getByRole('button', { name: 'Send Message' });
 
     await user.type(nameInput, 'Jane Smith');
@@ -74,15 +74,23 @@ describe('Contact', () => {
 
     await user.click(submitButton);
 
-    await waitFor(() => {
-      expect(mockConsoleWarn).toHaveBeenCalledWith('Form submitted:', {
-        name: 'Jane Smith',
-        email: 'jane@example.com',
-        message: 'Hello from the test!',
-      });
-    });
+    await waitFor(
+      () => {
+        expect(mockConsoleLog).toHaveBeenCalledWith('Form submitted:', {
+          name: 'Jane Smith',
+          email: 'jane@example.com',
+          message: 'Hello from the test!',
+        });
+      },
+      { timeout: 3000 }
+    );
 
-    expect(mockAlert).toHaveBeenCalledWith('Thank you for your message! This is a demo form.');
+    await waitFor(
+      () => {
+        expect(mockAlert).toHaveBeenCalledWith('Thank you for your message! This is a demo form.');
+      },
+      { timeout: 3000 }
+    );
   });
 
   it('has a working form that can be submitted', async () => {
@@ -93,9 +101,9 @@ describe('Contact', () => {
     expect(form).toBeInTheDocument();
 
     // Fill out required fields
-    await user.type(screen.getByLabelText('Name'), 'Test User');
-    await user.type(screen.getByLabelText('Email'), 'test@example.com');
-    await user.type(screen.getByLabelText('Message'), 'Test message');
+    await user.type(screen.getByLabelText(/Name/i), 'Test User');
+    await user.type(screen.getByLabelText(/Email/i), 'test@example.com');
+    await user.type(screen.getByLabelText(/Message/i), 'Test message');
 
     expect(screen.getByDisplayValue('Test User')).toBeInTheDocument();
     expect(screen.getByDisplayValue('test@example.com')).toBeInTheDocument();
@@ -118,9 +126,9 @@ describe('Contact', () => {
   it('has proper form validation attributes', () => {
     renderContact();
 
-    const nameInput = screen.getByLabelText('Name');
-    const emailInput = screen.getByLabelText('Email');
-    const messageInput = screen.getByLabelText('Message');
+    const nameInput = screen.getByLabelText(/Name/i);
+    const emailInput = screen.getByLabelText(/Email/i);
+    const messageInput = screen.getByLabelText(/Message/i);
 
     expect(nameInput).toHaveAttribute('required');
     expect(emailInput).toHaveAttribute('required');

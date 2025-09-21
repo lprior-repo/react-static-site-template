@@ -75,7 +75,7 @@ describe('Layout', () => {
   it('includes copyright in footer', () => {
     renderLayout();
 
-    const copyrightElements = screen.getAllByText((content, element) => {
+    const copyrightElements = screen.getAllByText((_content, element) => {
       return (
         element?.textContent?.includes('React Static Site Template. All rights reserved') ?? false
       );

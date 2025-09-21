@@ -24,7 +24,7 @@ describe('Footer', () => {
     render(<Footer />);
 
     // Use getAllByText and check first element since it might render multiple times
-    const copyrightElements = screen.getAllByText((content, element) => {
+    const copyrightElements = screen.getAllByText((_content, element) => {
       return (
         element?.textContent?.includes('React Static Site Template. All rights reserved') ?? false
       );
@@ -77,7 +77,7 @@ describe('Footer', () => {
 
     // Check that the year is included in the copyright text
     const currentYear = new Date().getFullYear();
-    const copyrightElements = screen.getAllByText((content, element) => {
+    const copyrightElements = screen.getAllByText((_content, element) => {
       return (
         element?.textContent?.includes(
           `${currentYear} React Static Site Template. All rights reserved`

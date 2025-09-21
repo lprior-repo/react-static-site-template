@@ -38,8 +38,9 @@ describe('Header', () => {
   it('includes mobile menu button', () => {
     renderHeader();
 
-    const mobileMenuButton = screen.getByRole('button', { name: /open menu/i });
+    const mobileMenuButton = screen.getByRole('button', { name: /toggle navigation menu/i });
     expect(mobileMenuButton).toBeInTheDocument();
+    expect(mobileMenuButton).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('has accessible navigation', () => {

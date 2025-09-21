@@ -103,11 +103,12 @@ dist-ssr
 *.sw?
 
 # Terraform
-terraform/.terraform/
-terraform/.terraform.lock.hcl
-terraform/terraform.tfstate*
-terraform/terraform.tfvars
-terraform/.terraform.tfstate.lock.info
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+*.tfvars
+!*.tfvars.example
 
 # AWS
 .aws/
